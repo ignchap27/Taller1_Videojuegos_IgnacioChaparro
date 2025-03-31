@@ -1,8 +1,8 @@
 # Instalación de dependencias
 
-Sigue estos pasos para instalar las librerías necesarias en tu ambiente virtual:
+Sigue estos pasos para instalar las librerías necesarias en tu maquina/ambiente virtual:
 
-1. **Crea un ambiente virtual (si aún no lo tienes):**
+1. **Crea un ambiente virtual (si lo deaseas):**
 
    ```
    python -m venv venv
@@ -14,4 +14,3 @@ Sigue estos pasos para instalar las librerías necesarias en tu ambiente virtual
 
     ```
     pip install --upgrade -r 'requirements.txt'
-
