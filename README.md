@@ -10,9 +10,9 @@ Sigue estos pasos para instalar las librerías necesarias en tu ambiente virtual
 2. **Activa el ambiente virtual:**
 
 
-``.\venv\Scripts\activate``
+````.\venv\Scripts\activate````
 
 3. **Instala las dependencias usando el archivo ``requirements.txt``:**
 
 
-``pip install --upgrade -r 'requirements.txt'``
+````pip install --upgrade -r 'requirements.txt'````
