@@ -14,3 +14,4 @@ Sigue estos pasos para instalar las librerías necesarias en tu ambiente virtual
 
     ```
     pip install --upgrade -r 'requirements.txt'
+
