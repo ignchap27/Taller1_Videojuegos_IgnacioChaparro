@@ -14,15 +14,15 @@ class GameEngine:
     def __init__(self) -> None:
         pygame.init()
         
-        #Cargar configuracion de window
+        #Cargar configuracion de window de cfg_00
         with open("verificacion/cfg_00/window.json") as f:
             window_cfg = json.load(f)
         
-        #config enemies
+        #Cargar config enemies de cfg_00
         with open("verificacion/cfg_00/enemies.json") as f:
             self.enemies_cfg = json.load(f)
             
-        #config level
+        #Cargar config level de cfg_00
         with open("verificacion/cfg_00/level_01.json") as f:
             self.level_cfg = json.load(f)
         
