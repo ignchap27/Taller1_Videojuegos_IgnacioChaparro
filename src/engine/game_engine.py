@@ -1,14 +1,47 @@
 import pygame
+import esper
+import json
+from src.ecs.components.c_enemy_spawner import CEnemySpawner
+from src.ecs.components.c_surface import CSurface
+from src.ecs.components.c_transform import CTransform
+from src.ecs.components.c_velocity import CVelocity
+from src.ecs.systems.s_bounce import system_bounce
+from src.ecs.systems.s_enemy_spawner import system_enemy_spawner
+from src.ecs.systems.s_movement import system_movement
+from src.ecs.systems.s_rendering import system_rendering
 
 class GameEngine:
     def __init__(self) -> None:
         pygame.init()
-        self.screen = pygame.display.set_mode((800, 600), pygame.SCALED)
+        
+        #Cargar configuracion de window
+        with open("verificacion/cfg_00/window.json") as f:
+            window_cfg = json.load(f)
+        
+        #config enemies
+        with open("verificacion/cfg_00/enemies.json") as f:
+            self.enemies_cfg = json.load(f)
+            
+        #config level
+        with open("verificacion/cfg_00/level_01.json") as f:
+            self.level_cfg = json.load(f)
+        
+        self.screen = pygame.display.set_mode(
+            (window_cfg["size"]["w"], window_cfg["size"]["h"]), pygame.SCALED)
+        pygame.display.set_caption(window_cfg["title"])
+        self.bg_color = (
+            window_cfg["bg_color"]["r"],
+            window_cfg["bg_color"]["g"],
+            window_cfg["bg_color"]["b"],
+        )
+        
         self.clock = pygame.time.Clock()
-        self.lock_cuad = pygame.Rect(100, 100, 640, 380)
         self.is_running = False
-        self.frame_rate = 60
+        self.frame_rate = window_cfg["framerate"]
         self.delta_time = 0
+        
+        self.ecs_world = esper.World()
+        
 
     def run(self) -> None:
         self._create()
@@ -21,13 +54,8 @@ class GameEngine:
         self._clean()
 
     def _create(self):
-        self.pos_cuad = pygame.Vector2(-25, 200)
-        self.vel_cuad = pygame.Vector2(200, 200)
-        size_cuad = pygame.Vector2(50, 70)
-        col_cuad = pygame.Color(0, 0, 0)
-
-        self.surf_cuad = pygame.Surface(size_cuad)
-        self.surf_cuad.fill(col_cuad)
+        spawner_entity = self.ecs_world.create_entity()
+        self.ecs_world.add_component(spawner_entity, CEnemySpawner(self.level_cfg["enemy_spawn_events"]))
 
     def _calculate_time(self):
         self.clock.tick(self.frame_rate)
@@ -39,31 +67,14 @@ class GameEngine:
                 self.is_running = False
 
     def _update(self):
-        # Pixeles por segundo
-        self.pos_cuad.x += self.vel_cuad.x * self.delta_time
-        self.pos_cuad.y += self.vel_cuad.y * self.delta_time
-        
-        # test_rect = pygame.Rect(100, 100, 640, 380)  replaced by self.lock_cuad
-        screen_rect = self.screen.get_rect()
-        cuad_rect = self.surf_cuad.get_rect(topleft=self.pos_cuad)
-        
-        if cuad_rect.left < self.lock_cuad.left or cuad_rect.right > self.lock_cuad.right:
-            self.vel_cuad.x *= -1
-            cuad_rect.clamp_ip(self.lock_cuad)
-            self.pos_cuad.x = cuad_rect.x
-            
-        if cuad_rect.top < self.lock_cuad.top or cuad_rect.bottom > self.lock_cuad.bottom:
-            self.vel_cuad.y *= -1
-            cuad_rect.clamp_ip(self.lock_cuad)
-            self.pos_cuad.y = cuad_rect.y
+        system_movement(self.ecs_world, self.delta_time)
+        system_bounce(self.ecs_world, self.screen)
+        system_enemy_spawner(self.ecs_world, self.delta_time, self.enemies_cfg)
 
     def _draw(self):
         self.screen.fill((0, 100, 200))
-
-        # Draw test_rect with a border (red color)
-        pygame.draw.rect(self.screen, (255, 0, 0), self.lock_cuad, 2)
-
-        self.screen.blit(self.surf_cuad, self.pos_cuad)
+        
+        system_rendering(self.ecs_world, self.screen)
 
         pygame.display.flip()
 
